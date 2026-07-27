@@ -1,0 +1,49 @@
+@import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+@import "tailwindcss";
+
+/*
+  Design system: Indian bank passbook / ledger aesthetic.
+  Deliberately NOT the generic AI-SaaS look (no cream+terracotta,
+  no near-black+neon, no purple gradients). FinAI is a financial
+  ledger product — the visual language borrows from passbooks,
+  official stamps, and ruled paper.
+*/
+@theme {
+  --color-ink: #14213d;       /* primary — deep navy, like passbook ink */
+  --color-ink-light: #2a3f66;
+  --color-paper: #faf7f0;      /* warm paper background */
+  --color-paper-dim: #f0ebdf;
+  --color-gold: #b8860b;       /* seal/accent — official gold */
+  --color-gold-dark: #8f6a08;
+  --color-sage: #3f6b52;       /* approved/success — muted rupee green */
+  --color-rust: #a8432e;       /* rejected/error — muted brick red */
+  --color-line: #d8d2c4;       /* ledger rule lines */
+  --color-ink-muted: #5a6478;
+
+  --font-display: 'Source Serif 4', serif;
+  --font-body: 'Inter', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+}
+
+body {
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+}
+
+/* Signature element: ruled ledger lines, like passbook entry rows */
+.ledger-rule {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent,
+    transparent 39px,
+    var(--color-line) 39px,
+    var(--color-line) 40px
+  );
+}
+
+.seal {
+  font-family: var(--font-mono);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
