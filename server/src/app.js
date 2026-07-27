@@ -21,6 +21,14 @@ app.use(
   })
 );
 app.use(express.json());
+// Prevent browsers/proxies from caching API responses — a stale cached
+// GET (e.g. an old "unassigned" state before a claim) should never be
+// served instead of a fresh one. Real-time data like application status
+// must always hit the server.
+app.use('/api', (req, res, next) => {
+  res.set('Cache-Control', 'no-store');
+  next();
+});
 app.use(cookieParser());
 if (process.env.NODE_ENV !== 'test') {
   app.use(morgan('dev'));
