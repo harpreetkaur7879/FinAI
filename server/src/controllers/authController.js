@@ -7,13 +7,18 @@ const {
 } = require('../utils/generateTokens');
 const { ROLES } = require('../constants/enums');
 
-// httpOnly cookie so the refresh token is invisible to client-side JS —
-// protects it from XSS. sameSite/secure hardened in production.
+
+const isProd = process.env.NODE_ENV === 'production';
 const refreshCookieOptions = {
   httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
-  sameSite: 'strict',
-  maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days, matches JWT_REFRESH_EXPIRY
+  // Frontend (Vercel) and backend (Render) are on different domains in
+  // production — that makes every request "cross-site" from the
+  // browser's perspective. Cross-site cookies require SameSite=None,
+  // and browsers only allow SameSite=None when Secure is also true.
+  // 'lax' works locally where both run on localhost (same-site).
+  secure: isProd,
+  sameSite: isProd ? 'none' : 'lax',
+  maxAge: 7 * 24 * 60 * 60 * 1000
 };
 
 /**
@@ -137,10 +142,8 @@ const logout = asyncHandler(async (req, res) => {
 
 res.clearCookie('refreshToken', {
   httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
-  sameSite: 'strict'
-});
-  sendSuccess(res, 200, null, 'Logged out successfully');
+  secure: isProd,
+  sameSite: isProd ? 'none' : 'lax'
 });
 
 /**
