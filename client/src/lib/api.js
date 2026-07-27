@@ -33,7 +33,13 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    // Never try to "refresh" a failed refresh call itself — otherwise a
+    // genuinely expired/missing session causes /auth/refresh to 401,
+    // which would then try to call /auth/refresh again, looping forever
+    // and leaving the UI stuck on "Loading session...".
+    const isRefreshCall = originalRequest?.url?.includes('/auth/refresh');
+
+    if (error.response?.status === 401 && !originalRequest._retry && !isRefreshCall) {
       originalRequest._retry = true;
 
       try {
