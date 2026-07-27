@@ -7,7 +7,8 @@ const {
 } = require('../utils/generateTokens');
 const { ROLES } = require('../constants/enums');
 
-
+// httpOnly cookie so the refresh token is invisible to client-side JS —
+// protects it from XSS. sameSite/secure hardened in production.
 const isProd = process.env.NODE_ENV === 'production';
 const refreshCookieOptions = {
   httpOnly: true,
@@ -18,7 +19,7 @@ const refreshCookieOptions = {
   // 'lax' works locally where both run on localhost (same-site).
   secure: isProd,
   sameSite: isProd ? 'none' : 'lax',
-  maxAge: 7 * 24 * 60 * 60 * 1000
+  maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days, matches JWT_REFRESH_EXPIRY
 };
 
 /**
@@ -139,11 +140,13 @@ const logout = asyncHandler(async (req, res) => {
     // Invalidate server-side regardless of who sends what — cheap and safe.
     await User.updateOne({ refreshToken: token }, { $unset: { refreshToken: 1 } });
   }
-})
-res.clearCookie('refreshToken', {
-  httpOnly: true,
-  secure: isProd,
-  sameSite: isProd ? 'none' : 'lax'
+
+  res.clearCookie('refreshToken', {
+    httpOnly: true,
+    secure: isProd,
+    sameSite: isProd ? 'none' : 'lax'
+  });
+  sendSuccess(res, 200, null, 'Logged out successfully');
 });
 
 /**
