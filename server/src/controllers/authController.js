@@ -139,7 +139,7 @@ const logout = asyncHandler(async (req, res) => {
     // Invalidate server-side regardless of who sends what — cheap and safe.
     await User.updateOne({ refreshToken: token }, { $unset: { refreshToken: 1 } });
   }
-
+})
 res.clearCookie('refreshToken', {
   httpOnly: true,
   secure: isProd,
